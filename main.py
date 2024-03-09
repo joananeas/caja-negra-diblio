@@ -4,11 +4,14 @@ import time
 import pyautogui
 import webbrowser
 import tkinter as tk
+from tkinter import ttk
+# v0.3 - File gen. OK, .exe compiled.
 
-# v0.2 - Tests OK
-
+status = None
+status_apache = None
 
 def test_login():
+    global status
     ruta_diblio = r"http://localhost/bibliodigital/login.php" # Abre una pestaña con la dirección del proyecto
 
     s(0.5)
@@ -32,9 +35,12 @@ def test_login():
     """
     Aquí nos encontramos en ./index.php
     """
+    status.config(text="Estado tests: Test Login completado.")
+    print("[TEST] Login acabado.")
 
 
 def test_buscar_libros():
+    global status
     random.seed(time.time())
     ruta_diblio = r"http://localhost/bibliodigital/"
     libros = ["Viaje al centro de la Tierra", "Los tres cerditos", "Les tres bessones", "El libro de la selva"]
@@ -50,7 +56,10 @@ def test_buscar_libros():
     pyautogui.write(r)
     s(0.5)
 
-    pyautogui.moveTo()
+    pyautogui.moveTo(370, 250)
+    pyautogui.click()
+    status.config(text="Estado tests: Test Buscar completado.")
+    print("[TEST] Buscar acabado.")
 
 
 def rand_date():
@@ -74,6 +83,7 @@ def rand_date():
 
 
 def test_reservar():
+    global status
     random.seed(time.time())
     libros = ["Viaje al centro de la Tierra", "Los tres cerditos", "Les tres bessones", "El libro de la selva"]
     ruta_diblio = r"http://localhost/bibliodigital/reservas.php?libro="
@@ -92,13 +102,15 @@ def test_reservar():
 
     pyautogui.moveTo(100, 320)
     pyautogui.click() # Botón reserva
+    status.config(text="Estado tests: Test Reservas completado.")
+    print("[TEST] Reserva acabado.")
 
 
 def start_xampp():
+    global status, status_apache
     apache = r"C:\xampp\apache_start.bat"
     k = r"C:\xampp\killprocess.bat"
     mysql = r"C:\xampp\mysql_start.bat"
-
     # Ejecutando el script de matar procesos
     subprocess.Popen(k, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(0.5)
@@ -110,8 +122,8 @@ def start_xampp():
     # Ejecutando MySQL
     subprocess.Popen(mysql, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(1)
-
     print("[MAIN] Servicios Iniciados.")
+    status.config(text="Estado tests: Servicios Iniciados.")
     """
     Con esto podremos runnear apache y mysql sin entrar a la GUI
     de xampp.
@@ -119,6 +131,7 @@ def start_xampp():
 
 
 def app():
+    global status, status_apache
     print("[MAIN] App iniciada.")
 
     w = tk.Tk()
@@ -127,27 +140,60 @@ def app():
     w.resizable(width=False, height=False)
 
     intro = tk.Label(w, text="Selecciona un test para ejecutarlo individualmente.")
-    intro.grid(row=1, column=0, sticky='w')  # 'w' para alinear a la izquierda (west)
+    intro.grid(row=1, column=0, sticky='w')
 
-    start_apache = tk.Button(w, text="Iniciar Apache & Mysql", command=start_xampp)
-    start_apache.grid(row=2, column=0, sticky='w')  # Alineación a la izquierda
+    # CheckBox Variables
+    login_var = tk.BooleanVar()
+    buscar_var = tk.BooleanVar()
+    reservar_var = tk.BooleanVar()
 
-    # Aplicando estilos al botón
-    start_apache.config(font=('Helvetica', 10), bg='black', fg='white')
+    # Crear CheckBoxes
+    login_cb = tk.Checkbutton(w, text="Login", var=login_var)
+    buscar_cb = tk.Checkbutton(w, text="Buscar", var=buscar_var)
+    reservar_cb = tk.Checkbutton(w, text="Reservar", var=reservar_var)
 
-    t_login = tk.Button(w, text="TEST - Login", command=test_login)
-    t_login.grid(row=3, column=0, sticky='w')  # Alineación a la izquierda
+    login_cb.grid(row=4, column=1)
+    buscar_cb.grid(row=5, column=1)
+    reservar_cb.grid(row=6, column=1)
 
-    t_buscar = tk.Button(w, text="TEST - Buscar libros", command=test_buscar_libros)
-    t_buscar.grid(row=4, column=0, sticky='w')  # Alineación a la izquierda
+    # Configuración de estilo
+    style = ttk.Style()
+    style.configure("White.TButton", font=('Helvetica', 10), background='black')
+    style.map("White.TButton",
+              foreground=[('!active', 'white'), ('active', 'black')],
+              background=[('active', 'white')])
 
-    t_reservar = tk.Button(w, text="TEST - Reservar libros", command=test_reservar)
-    t_reservar.grid(row=5, column=0, sticky='w')  # Alineación a la izquierda
+    # Crear un botón
+    # start_apache = ttk.Button(w, text="Iniciar Apache & Mysql", command=start_xampp, style="TButton")
+    # start_apache.grid(row=2, column=0, sticky='w')
 
+    t_login = ttk.Button(w, text="TEST - Login", command=test_login, style="TButton")
+    t_login.grid(row=4, column=0, sticky='w')  # Alineación a la izquierda
 
+    t_buscar = ttk.Button(w, text="TEST - Buscar libros", command=test_buscar_libros, style="TButton")
+    t_buscar.grid(row=5, column=0, sticky='w')  # Alineación a la izquierda
 
-    # Con esto la app se seguirá ejecutando de forma indefinida.
+    t_reservar = ttk.Button(w, text="TEST - Reservar libros", command=test_reservar, style="TButton")
+    t_reservar.grid(row=6, column=0, sticky='w')  # Alineación a la izquierda
+
+    status = ttk.Label(w, text="Estado tests: ")
+    # Botón para guardar el estado de los CheckBoxes
+    guardar_btn = ttk.Button(w, text="Guardar Estado",
+                             command=lambda: guardar_estado(login_var, buscar_var, reservar_var))
+    guardar_btn.grid(row=8, column=0, sticky='e')
+
+    status.grid(row=9, column=0, sticky='w')
+    start_xampp()  # Inicializamos más tarde para no llamar antes al label que su creación
+
     w.mainloop()
+
+
+def guardar_estado(login_var, buscar_var, reservar_var):
+    with open("resultados.txt", "w") as file:
+        file.write(f"Login: {login_var.get()}\n")
+        file.write(f"Buscar: {buscar_var.get()}\n")
+        file.write(f"Reservar: {reservar_var.get()}\n")
+    print("Estado guardado en resultados.txt")
 
 
 def s(tiempo):
@@ -163,6 +209,3 @@ def launch_menu():
 
 if __name__ == '__main__':
     app()
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
