@@ -5,7 +5,7 @@ import pyautogui
 import webbrowser
 import tkinter as tk
 from tkinter import ttk
-# v0.3 - File gen. OK, .exe compiled.
+# v0.3 - Coordenates for my laptop
 
 status = None
 status_apache = None
@@ -48,7 +48,7 @@ def test_buscar_libros():
     webbrowser.open(ruta_diblio)
     s(0.5)
 
-    pyautogui.moveTo(150, 200)
+    pyautogui.moveTo(150, 250)
     pyautogui.click()  # Cerca
     s(0.5)
 
@@ -56,7 +56,7 @@ def test_buscar_libros():
     pyautogui.write(r)
     s(0.5)
 
-    pyautogui.moveTo(370, 250)
+    pyautogui.moveTo(460, 300)
     pyautogui.click()
     status.config(text="Estado tests: Test Buscar completado.")
     print("[TEST] Buscar acabado.")
@@ -91,16 +91,16 @@ def test_reservar():
     webbrowser.open(ruta_diblio + random.choice(libros))
     s(0.5)
 
-    pyautogui.moveTo(130, 250)
+    pyautogui.moveTo(160, 300)
     pyautogui.click()
     rand_date()
     s(0.5)
 
-    pyautogui.moveTo(120, 280)
+    pyautogui.moveTo(150, 330)
     pyautogui.click()
     rand_date()
 
-    pyautogui.moveTo(100, 320)
+    pyautogui.moveTo(130, 405)
     pyautogui.click() # Botón reserva
     status.config(text="Estado tests: Test Reservas completado.")
     print("[TEST] Reserva acabado.")
